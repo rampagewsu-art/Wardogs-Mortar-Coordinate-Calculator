@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WARDOGS Mortar Calculator</title>
+<style>
+:root{color-scheme:light dark;--bg:light-dark(#eef1f3,#111416);--panel:light-dark(#fff,#1a1e20);--panel2:light-dark(#f3f5f6,#202528);--text:light-dark(#182024,#edf1f2);--muted:light-dark(#66737a,#aeb9bd);--line:light-dark(#d8dee1,#343c40);--accent:light-dark(#b35c24,#e07b38);--good:light-dark(#1f6b4d,#63c293);--danger:light-dark(#a43b31,#ed7165)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}.app{min-height:100vh;background:var(--bg);padding:28px}.wrap{max-width:980px;margin:auto}.eyebrow{font-size:12px;letter-spacing:.14em;font-weight:800;color:var(--accent)}h1{margin:6px 0 4px;font-size:34px;letter-spacing:-.03em}.sub{color:var(--muted);margin:0 0 24px}.toolbar{display:flex;gap:10px;margin:0 0 16px}.toolbar button{margin:0;width:auto}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 8px 30px #0000000a}.card h2{font-size:15px;margin:0 0 15px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:700}.field input,.field select{width:100%;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:10px;padding:12px;font:inherit;outline:none}.field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}button{margin-top:16px;width:100%;border:0;border-radius:10px;padding:12px 14px;background:var(--accent);color:#fff;font-weight:800;font-size:14px;cursor:pointer}.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}.result{grid-column:1/-1}.resultgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.metric{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:15px}.metric .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.metric .value{font-size:27px;font-weight:850;margin-top:5px}.metric .unit{font-size:12px;color:var(--muted);font-weight:600}.good{color:var(--good)}.bad{color:var(--danger)}.note{margin-top:16px;padding:12px 14px;border-left:3px solid var(--accent);background:var(--panel2);color:var(--muted);font-size:13px;line-height:1.5}.formula{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted);margin-top:12px}.history{margin-top:16px}.history-list{display:grid;gap:8px}.history-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);font-size:12px}.history-row strong{font-size:13px}.footer{margin-top:18px;color:var(--muted);font-size:11px;line-height:1.5}@media(max-width:680px){.app{padding:18px}.grid{grid-template-columns:1fr}.result{grid-column:auto}.resultgrid{grid-template-columns:1fr 1fr}.fields{gap:10px}.metric .value{font-size:23px}.toolbar{display:grid;grid-template-columns:1fr 1fr}.toolbar button{width:100%}}
+</style>
+</head>
+<body>
+<div class="app"><div class="wrap">
+  <div class="eyebrow">WARDOGS • FIELD TOOL</div>
+  <h1>Mortar Coordinate Calculator</h1>
+  <p class="sub">Enter coordinates, calculate a firing solution, and keep recent targets handy.</p>
+  <div class="toolbar">
+    <button class="secondary" id="clearBtn" type="button">Clear</button>
+    <button class="secondary" id="copyBtn" type="button">Copy solution</button>
+  </div>
+  <div class="grid">
+    <section class="card">
+      <h2>Mortar / Gun</h2>
+      <div class="fields">
+        <div class="field"><label>X coordinate</label><input id="mx" type="number" step="0.01" placeholder="98.43"></div>
+        <div class="field"><label>Y coordinate</label><input id="my" type="number" step="0.01" placeholder="110.38"></div>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Target</h2>
+      <div class="fields">
+        <div class="field"><label>X coordinate</label><input id="tx" type="number" step="0.01" placeholder="94.53"></div>
+        <div class="field"><label>Y coordinate</label><input id="ty" type="number" step="0.01" placeholder="109.03"></div>
+      </div>
+    </section>
+    <section class="card result">
+      <h2>Firing solution</h2>
+      <div class="resultgrid">
+        <div class="metric"><div class="label">Distance</div><div class="value" id="distance">—</div><div class="unit">meters</div></div>
+        <div class="metric"><div class="label">Bearing</div><div class="value" id="bearing">—</div><div class="unit">degrees</div></div>
+        <div class="metric"><div class="label">L81 status</div><div class="value" id="status">—</div><div class="unit" id="statusSub">132–684 m published table</div></div>
+      </div>
+      <div class="note" id="note">Enter all four coordinates to calculate.</div>
+      <div class="formula">Range = √((ΔX)² + (ΔY)²) × 100</div>
+    </section>
+    <section class="card history">
+      <h2>Recent targets</h2>
+      <div class="history-list" id="historyList"><div class="note">Your recent firing solutions will appear here.</div></div>
+    </section>
+  </div>
+  <div class="footer">Unofficial community tool. Coordinate range calculation uses the commonly documented WARDOGS map-coordinate method. Terrain, obstacles, and in-game aiming behavior can affect an actual shot.</div>
+</div></div>
+<script>
+const ids=['mx','my','tx','ty'];
+let lastSolution='';
+const history=[];
+function val(id){return Number(document.getElementById(id).value)}
+function calc(){
+  const [mx,my,tx,ty]=ids.map(val);
+  if([mx,my,tx,ty].some(n=>!Number.isFinite(n))){document.getElementById('distance').textContent='—';document.getElementById('bearing').textContent='—';document.getElementById('status').textContent='—';document.getElementById('status').className='value';document.getElementById('note').textContent='Enter all four coordinates to calculate.';lastSolution='';return}
+  const dx=tx-mx, dy=ty-my;
+  const distance=Math.hypot(dx,dy)*100;
+  let bearing=Math.atan2(dx,dy)*180/Math.PI; if(bearing<0) bearing+=360;
+  document.getElementById('distance').textContent=distance.toFixed(1);
+  document.getElementById('bearing').textContent=bearing.toFixed(1)+'°';
+  const status=document.getElementById('status');
+  const sub=document.getElementById('statusSub');
+  status.className='value';
+  if(distance<132){status.textContent='TOO CLOSE';status.classList.add('bad');sub.textContent='below published L81 minimum';}
+  else if(distance>684){status.textContent='OUT OF RANGE';status.classList.add('bad');sub.textContent='above published L81 maximum';}
+  else{status.textContent='IN RANGE';status.classList.add('good');sub.textContent='published L81 range';}
+  lastSolution=`Distance ${distance.toFixed(1)} m | Bearing ${bearing.toFixed(1)}° | Range ${Math.round(distance)} m`;
+  document.getElementById('note').textContent=`ΔX ${dx.toFixed(2)} • ΔY ${dy.toFixed(2)} • Set your mortar range to approximately ${Math.round(distance)} m.`;
+}
+ids.forEach(id=>document.getElementById(id).addEventListener('input',calc));
+['98.43','110.38','94.53','109.03'].forEach((v,i)=>document.getElementById(ids[i]).value=v);calc();
+document.getElementById('clearBtn').addEventListener('click',()=>{ids.forEach(id=>document.getElementById(id).value='');calc();});
+document.getElementById('copyBtn').addEventListener('click',async()=>{if(!lastSolution)return;try{await navigator.clipboard.writeText(lastSolution);document.getElementById('copyBtn').textContent='Copied!';setTimeout(()=>document.getElementById('copyBtn').textContent='Copy solution',1200);}catch(e){document.getElementById('note').textContent='Copy failed; select the firing solution manually.';}});
+document.getElementById('note').addEventListener('click',()=>{if(!lastSolution)return;history.unshift({solution:lastSolution,coords:ids.map(id=>document.getElementById(id).value)});history.splice(8);renderHistory();});
+function renderHistory(){const list=document.getElementById('historyList');if(!history.length){list.innerHTML='<div class="note">Your recent firing solutions will appear here.</div>';return}list.innerHTML=history.map((h,i)=>`<div class="history-row"><div><strong>${h.solution}</strong><br><span>${h.coords.join(' / ')}</span></div><button class="secondary" type="button" data-i="${i}">Load</button></div>`).join('');list.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{const h=history[Number(b.dataset.i)];h.coords.forEach((v,i)=>document.getElementById(ids[i]).value=v);calc();window.scrollTo({top:0,behavior:'smooth'});}));}
+</script>
+</body></html>
